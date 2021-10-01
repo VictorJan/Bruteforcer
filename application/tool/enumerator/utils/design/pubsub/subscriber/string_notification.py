@@ -20,10 +20,10 @@ class StringNotificationSubscriber(AbstractSubscriber):
         :param broker :: AbstractSingletonBroker :
         :return None:
         '''
-        assert isinstance(topic,str) , TypeError('Topic name must be a string.')
-        assert topic not in self.topics, \
+        if not(isinstance(topic,str)): TypeError('Topic name must be a string.')
+        if not(topic not in self.topics): raise \
             IndexError(f'The listener is already subscribed to receive notifications from {topic} topic.')
-        assert broker.__class__.__class__==AbstractSingletonBroker ,TypeError('Class of a broker instance had to be instantiated by the AbstractSingletonBroker.')
+        if not(broker.__class__.__class__==AbstractSingletonBroker) : raise TypeError('Class of a broker instance had to be instantiated by the AbstractSingletonBroker.')
 
         self.__topics.append(topic)
         broker.register(topic,self)
@@ -36,10 +36,10 @@ class StringNotificationSubscriber(AbstractSubscriber):
         :param **data:
         :return None:
         '''
-        assert topic in self.__topics, \
+        if not(topic in self.__topics): raise \
             IndexError(f'The listener is not subscribed to receive notifications from {topic} topic.')
-        assert (callback:=data.pop('callback',False)), KeyError('A callback has\'t been provided.')
-        assert isinstance(callback,types.MethodType), TypeError('A callback must be a method.')
+        if not((callback:=data.pop('callback',False))): raise KeyError('A callback has\'t been provided.')
+        if not(isinstance(callback,types.MethodType)): raise TypeError('A callback must be a method.')
         asyncio.create_task(callback(self,topic=topic,**data))
 
     @property

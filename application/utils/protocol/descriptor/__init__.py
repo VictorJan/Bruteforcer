@@ -1,3 +1,3 @@
 from application.utils.protocol.descriptor.abstract import AbstractDescriptor,AbstractTrialDescriptor
 from application.utils.protocol.descriptor.archive import ArchiveTrialDescriptor
-from application.utils.protocol.descriptor.property import ClassProperty
+from application.utils.protocol.descriptor.property import ClassProperty,PrivateRetrieverProperty

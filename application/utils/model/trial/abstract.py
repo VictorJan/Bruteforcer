@@ -12,8 +12,8 @@ class AbstractArchiveTrial(AbstractTrial):
     _extension='(?:rar|zip)'
 
     def __init__(self,filepath):
-        assert os.path.exists(filepath), ValueError(f'{filepath} does not exist.')
-        assert re.fullmatch(f'.*\.{self._extension}',filepath) , ValueError('Provided filepath parameter must allude to an appropriate archive.')
+        if not(os.path.exists(filepath)): raise ValueError(f'{filepath} does not exist.')
+        if not(re.fullmatch(f'.*\.{self._extension}',filepath)) : raise ValueError('Provided filepath parameter must allude to an appropriate archive.')
         self.__filepath=filepath
 
     @property

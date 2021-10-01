@@ -7,6 +7,6 @@ class ToolDecorator(AbstractTool):
         :param obj:
         :return:
         '''
-        assert hasattr(self,f'_{self.__class__.__name__}__wrapee'), AttributeError('ToolDecorator must have a private "wrapee" attribute.')
+        if not( hasattr(self,f'_{self.__class__.__name__}__wrapee')) : raise AttributeError('ToolDecorator must have a private "wrapee" attribute.')
         return self.__wrapee.open(self,obj)
 

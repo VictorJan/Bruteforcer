@@ -41,11 +41,11 @@ class delegate(AbstractDescriptor):
         :return None:
         '''
         instance, topic = (args+(None,None))[:2]
-        assert instance.__class__ == AbstractSingletonBroker, TypeError('Invoker must be a broker.')
-        assert isinstance(topic, str), TypeError('Topic must be a string.')
+        if not instance.__class__ == AbstractSingletonBroker: raise TypeError('Invoker must be a broker.')
+        if not isinstance(topic, str): raise TypeError('Topic must be a string.')
 
         topics=getattr(instance,f'_{instance.__class__.__name__}__topics',{})
-        assert isinstance((subscribers:=topics.get(topic,None)),list), KeyError('Topic hasn\'t been registered.')
+        if not(isinstance((subscribers:=topics.get(topic,None)),list)): raise KeyError('Topic hasn\'t been registered.')
 
         is_callback = lambda hashmap: all(
             isinstance(hashmap.get(case[0], None), case[1]) for case in (('recipient', isinstance, AbstractSubscriber), ('notification', dict))

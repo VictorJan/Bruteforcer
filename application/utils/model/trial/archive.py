@@ -17,7 +17,7 @@ class RARTrial(AbstractArchiveTrial):
         :return True or False:
         '''
 
-        assert isinstance(value, str), ValueError('Value parameter must a string.')
+        if not isinstance(value, str): raise ValueError('Value parameter must a string.')
 
         process_args = ['unrar', 't', f'-p{value}', self.filepath]
         process = await asyncio.create_subprocess_shell(' '.join(process_args), stdout=asyncio.subprocess.PIPE,
@@ -36,7 +36,7 @@ class ZIPTrial(AbstractArchiveTrial):
         :return bool:
         '''
 
-        assert isinstance(value,str) , ValueError('Value parameter must a string.')
+        if not isinstance(value,str) : raise ValueError('Value parameter must a string.')
 
         with zipfile.ZipFile(self.filepath) as file:
             try:

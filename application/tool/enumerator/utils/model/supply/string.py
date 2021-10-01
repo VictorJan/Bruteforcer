@@ -8,7 +8,7 @@ class StringSupply(AbstractSupply):
         '''
         Initialize a string supply - composing of a concrete emitter:StringNotificationPublisher.
         '''
-        assert isinstance(payload,str), TypeError('Payload must be a string.')
+        if not(isinstance(payload,str)): raise TypeError('Payload must be a string.')
         self.__emitter=StringNotificationPublisher()
         self.__payload=payload
 
@@ -23,7 +23,7 @@ class StringSupply(AbstractSupply):
         :param callback : method:
         :return:
         '''
-        assert hook.__class__.__class__ == MetaHook, TypeError('Hook component - must be an instance of a class instantiated by a MetaHook.')
+        if not(hook.__class__.__class__ == MetaHook): raise TypeError('Hook component - must be an instance of a class instantiated by a MetaHook.')
         try:
             hook.trial = self.__payload
             trial = await hook.trial

@@ -9,8 +9,8 @@ class Application(AbstractApplication):
         self.__tool=None
 
     async def open(self,obj):
-        assert isinstance(self.__tool, AbstractTool), TypeError('A tool hasn\'t been choosen.')
-        assert isinstance(obj,str) and os.path.exists(obj) , ValueError(f'There is no such path as {obj}.')
+        if not(isinstance(self.__tool, AbstractTool)): raise TypeError('A tool hasn\'t been choosen.')
+        if not(isinstance(obj,str) and os.path.exists(obj)): raise ValueError(f'There is no such path as {obj}.')
         return await self.__tool.open(ArchiveHook(source=obj))
 
     @property
@@ -19,5 +19,5 @@ class Application(AbstractApplication):
 
     @tool.setter
     def tool(self,tool):
-        assert isinstance(tool, AbstractTool), TypeError('Tool must be of AbstractTool instance')
+        if not(isinstance(tool, AbstractTool)): raise TypeError('Tool must be of AbstractTool instance')
         self.__tool=tool

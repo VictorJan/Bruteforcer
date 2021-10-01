@@ -7,7 +7,7 @@ class TimeItToolDecorator(ToolDecorator):
     '''
 
     def __init__(self, wrapee):
-        assert isinstance(wrapee,ToolDecorator.__base__), TypeError(
+        if not( isinstance(wrapee,ToolDecorator.__base__)): raise TypeError(
             'The component must be derived from a class that implements AbstractTool.')
         self.__wrapee = wrapee
 

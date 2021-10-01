@@ -13,7 +13,7 @@ class AbstractSingletonBroker(AbstractMeta):
         :param kwargs:
         :return:
         '''
-        assert (mcls:=cls.__class__)==AbstractSingletonBroker, TypeError('Class that wishes to create an instance must have been instantiated by the AbstractSingletonBroker.')
+        if not( (mcls:=cls.__class__)==AbstractSingletonBroker) : raise TypeError('Class that wishes to create an instance must have been instantiated by the AbstractSingletonBroker.')
 
         if mcls.__instance is None:
             mcls.__instance = super(mcls,cls).__call__(*args,**kwargs)

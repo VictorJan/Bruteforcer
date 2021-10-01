@@ -30,8 +30,8 @@ class StringNotificationBroker(metaclass=AbstractSingletonBroker):
         :return None:
         '''
 
-        assert isinstance(topic,str), TypeError('Topic must be a string.')
-        assert isinstance(subscriber,AbstractSubscriber), \
+        if not(isinstance(topic,str)): raise TypeError('Topic must be a string.')
+        if not(isinstance(subscriber,AbstractSubscriber)): raise \
             TypeError('Subscriber instance must derive from a class that implements AbstractSubscriber class.')
 
         self.__topics[topic]=self.__topics.get(topic,[])+[subscriber]
@@ -52,7 +52,7 @@ class StringNotificationBroker(metaclass=AbstractSingletonBroker):
         :param data:dict:
         :return None:
         '''
-        assert isinstance(topic, str), TypeError('Topic must be a string.')
+        if not(isinstance(topic, str)): raise TypeError('Topic must be a string.')
         assert all(topic in case for case in (self.__topics,self.__running_notification_indexes)), KeyError('Topic hasn\'t been registered.')
         '''
         asyncio.create_task(self._distribute(

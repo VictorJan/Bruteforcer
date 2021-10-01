@@ -1,10 +1,13 @@
 import threading
+import types
 
 from application.tool.enumerator.utils.model.supplier import AbstractSupplier
 from application.tool.enumerator.utils.design.pubsub import StringNotificationSubscriber
 from application.tool.enumerator.utils.model.dispatcher import StringDispatcher
+from application.tool.enumerator.utils.model.config import Config
+from application.tool.enumerator.utils.model.requirement import NestedRequirement,TypeRequirement,IterableRequirement,MetaTypeRequirement
 
-from application.tool.enumerator.utils.model.worker import MandateWorker
+from application.tool.enumerator.utils.model.worker import AbstractWorker
 
 from application.utils.model.hook import MetaHook
 
@@ -28,17 +31,37 @@ class StringSupplier(AbstractSupplier):
         Hands down string augment to concurrent execution of workers, by firing off a delegate method,
         providing a respective configuration - a worker-queue, with a single starter MandateWorker, which assigns
         other Mandate and Dispatcher workers.
-        Important to denote that , the Mandate workers are injected with / composed of the following configs:
+        Important to denote that , the Mandate workers are injected with the following config:
+        {
+        workers-queue:[AbstractWorker]
+        hook::MetaHook,
+        callback:method,
+        submission :
+            {
+            payload:str,
+            running_length:int,
+            suspend_length:int
+            }
+        }
 
-        { hook::MetaHook, callback:method, payload:str, running_length:int, exit_length:int }
-        
         Delegates further string augment to * StringDispatches, by setting off async tasks of
         dispatch method of instantiated instances. Each dispatch is handed out with a common hook.
         :param hook:: MetaHook:
         :return password:str/None, failure:int:
         '''
         assert hook.__class__.__class__ == MetaHook, TypeError('Hook component - must be an instance of a class instantiated by a MetaHook.')
+        config_payload=dict(
+            workers=[],
+            hook=hook,
+            callback=self._callback,
+            submission=dict(
+                payload='aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ',
+                running_length=3,
+                suspend_length=5
+            )
+        )
 
+        '''
         asyncio.create_task(self._delegate(
             hook,
             workers=[MandateWorker()]
@@ -47,7 +70,7 @@ class StringSupplier(AbstractSupplier):
             topic='password_feedback',
             payload='abcdefg'  # 'aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYz'[::2]
         ))
-
+        '''
         '''
         asyncio.create_task(self._delegate(
             hook,
@@ -61,13 +84,13 @@ class StringSupplier(AbstractSupplier):
 
         return await self.__product,self.__failure
 
-    async def _delegate(self,**config):
+    async def _delegate(self,config):
         '''
-        Asynchronously delegates/hands out tasks/jobs to workers:
+        Asynchronously manages/delegates execution of workers - provided from a MandateConfig:
         Given that the worker-queue is not empty, proceeds to:
         - set a task on the event loop for the very first worker of a queue
         - set up a callback/task to itself - to provide looping
-        Thus , it could be infered , that the event loop callbacks, would look like this:
+        Thus , it could be inferred , that the event loop callbacks, would look like this:
         -Worker(...)()
         -_delegate(...)
         -Worker(...)()
@@ -85,31 +108,39 @@ class StringSupplier(AbstractSupplier):
 
 
 
-        :param config: - expected to contain {
+        :param config:Config{
         workers:[AbstractWorker,...] - a FIFO queue
         }
         :return:
         Note: each worker is responsible to assign other workers to the worker/job-queue.
         '''
 
-        required_config = (('workers',int),('length',int),('topic',str),('payload',str))
+        if not isinstance(config.__class__,Config.__class__): raise TypeError(f'A config must be an instance of a class that implements AbstractConfig.')
 
-        assert all(config.get(rc[0],None).__class__ is rc[1] for rc in required_config), \
-            RuntimeError(f'Provided configuration is not supported, according to a guideline : {",".join(map(str,required_config))}')
+        if config.validate(
+            workers=IterableRequirement(list, AbstractWorker),
+            hook=MetaTypeRequirement(MetaHook),
+            callback=TypeRequirement(types.MethodType),
+            submission=NestedRequirement(
+                payload=TypeRequirement(str),
+                running_length=TypeRequirement(int),
+                suspend_length=TypeRequirement(int)
+            )
+        ): raise KeyError('A provided config is invalid.')
 
-        if config['workers']:
+        if config.workers:
+            asyncio.create_task(config.workers.pop(0)())
+            asyncio.create_task(self._delegate(config))
 
-            string_dispatchers = StringDispatcher(config['payload'], config['length'])
 
-            if config['topic'] not in self.listener.topics: self.listener.subscribe(config['topic'],string_dispatcher.broker)
-
-            asyncio.create_task(string_dispatcher.dispatch(hook,self._callback))
-            config['length'] += 1
-            config['workers'] -= 1
-
-            if config['workers']: asyncio.create_task(self._delegate(hook,**config))
 
         '''
+        Config(
+                    workers=config.workers,
+                    hook=config.hook,
+                    callback=config.callback,
+                    submission=config.submission
+                )
         if config['workers']:
             worker=config['workers'].pop(0)()
             asyncio.create_task(self._delegate(**config))

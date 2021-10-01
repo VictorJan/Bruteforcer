@@ -13,7 +13,7 @@ class ApplicationBuilder(Builder):
         A tool property - responsible to return a core component of an application - alluding the strategy.
         :return self.__tool:
         '''
-        assert isinstance(self.__application.tool, AbstractTool), TypeError(
+        if not(isinstance(self.__application.tool, AbstractTool)): raise TypeError(
             'An application hasn\'t been built.')
         return self.__application.tool
 
@@ -24,7 +24,7 @@ class ApplicationBuilder(Builder):
         :param strategy:
         :return None:
         '''
-        assert isinstance(strategy,AbstractTool), TypeError('Strategy must an instance of an AbstractTool class.')
+        if not(isinstance(strategy,AbstractTool)): raise TypeError('Strategy must an instance of an AbstractTool class.')
         self.__application.tool=strategy
 
     @property
@@ -33,7 +33,7 @@ class ApplicationBuilder(Builder):
         Provides an application, with a respective algorithm.
         :return self.__application:
         '''
-        assert isinstance(self.__application.tool,AbstractTool) , TypeError('An application hasn\'t been built.')
+        if not(isinstance(self.__application.tool,AbstractTool)): TypeError('An application hasn\'t been built.')
         product=self.__application
         self.__reset()
         return product

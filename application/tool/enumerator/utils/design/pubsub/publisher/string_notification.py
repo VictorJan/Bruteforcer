@@ -16,8 +16,8 @@ class StringNotificationPublisher(AbstractPublisher):
         :param data:dict:
         :return None:
         '''
-        assert isinstance(topic,str), TypeError('An topic name must be a string.')
-        assert self.broker is not None , NotImplementedError('A broker hasn\'t been assinged , consequently one shall not be able to publish a notification.')
+        if not isinstance(topic,str): raise TypeError('An topic name must be a string.')
+        if not (self.broker is not None): raise NotImplementedError('A broker hasn\'t been assinged : raise consequently one shall not be able to publish a notification.')
         asyncio.create_task(self.broker._distribute(topic=topic,index=0,**data))
 
     @property
@@ -34,6 +34,6 @@ class StringNotificationPublisher(AbstractPublisher):
         :param other::AbstractSingletonBroker :
         :return None:
         '''
-        assert other.__class__.__class__ == AbstractSingletonBroker, TypeError(
+        if not(other.__class__.__class__ == AbstractSingletonBroker): raise TypeError(
             'Class of a broker instance had to be instantiated by the AbstractSingletonBroker.')
         self.__broker=other

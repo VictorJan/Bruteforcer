@@ -10,5 +10,5 @@ class AbstractSupplier(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    async def _delegate(self,**config):
+    async def _delegate(self,config):
         raise NotImplementedError()

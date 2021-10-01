@@ -21,7 +21,7 @@ class BaseHandler(metaclass=AbstractMetaHandler):
         :param case:
         :return:
         '''
-        assert issubclass(self.__class__, BaseHandler), TypeError('This method shall only be called by instances of implementor classes.')
+        if not(issubclass(self.__class__, BaseHandler)): raise TypeError('This method shall only be called by instances of implementor classes.')
         if (successor:=self.__class__.consecutive)<len(derivatives:=BaseHandler.__subclasses__()):
             self.__class__.consecutive += 1
             return derivatives[successor]().handle(**case)
@@ -33,8 +33,8 @@ class BaseHandler(metaclass=AbstractMetaHandler):
 
     @consecutive.setter
     def consecutive(cls, value):
-        assert isinstance(value,int), TypeError('Value must be an integer.')
-        assert value<len(cls.__subclasses__()), ValueError('Must not overflow the current amount of handlers.')
+        if not(isinstance(value,int)): raise TypeError('Value must be an integer.')
+        if not(value<len(cls.__subclasses__())): raise ValueError('Must not overflow the current amount of handlers.')
         cls.__consecutive=value
 
 

@@ -13,8 +13,6 @@ class AbstractMeta(type):
         :param attrs:
         :return a derivative class of an AbstractMeta metaclass:
         '''
-        assert all((implemetation:=cls.__dict__.get(name,None)) is not None and not hasattr(implemetation,'__isabstractmethod__') and signature(implemetation)==signature(method)
-                    for name,method in cls.__class__.__dict__.items() if hasattr(method,'__isabstractmethod__')), NotImplementedError(
-            f'Cannot instantiate {name} class - due to presence of not implemented,unresolved abstract methods.'
-        )
+        if not all((implemetation:=cls.__dict__.get(key,None)) is not None and not hasattr(implemetation,'__isabstractmethod__') and signature(implemetation) == signature(method) for key,method in cls.__class__.__dict__.items() if hasattr(method,'__isabstractmethod__')):
+            raise NotImplementedError(f'Cannot instantiate {name} class - due to presence of not implemented,unresolved abstract methods.')
         return super(AbstractMeta,cls).__init__(name,bases,attrs)

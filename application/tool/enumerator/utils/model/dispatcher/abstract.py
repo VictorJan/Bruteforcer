@@ -10,8 +10,8 @@ class AbstractDispatcher(AbstractMeta):
         :param length:
         :return:
         '''
-        assert isinstance(payload,str), TypeError('Payload must be a string.')
-        assert isinstance(length,int), TypeError('Length must be an integer.')
+        if not(isinstance(payload,str)): raise TypeError('Payload must be a string.')
+        if not(isinstance(length,int)): raise TypeError('Length must be an integer.')
 
         index,workers=0,[]
         while index<len(payload):

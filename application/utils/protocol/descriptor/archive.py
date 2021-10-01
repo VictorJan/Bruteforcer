@@ -8,7 +8,7 @@ class ArchiveTrialDescriptor(AbstractTrialDescriptor):
         Initializes the ArchiveTrialDescriptor object, by injecting an AbstractArchiveTrial instance as a trial.
         :param trial:AbstractArchiveTrial:
         '''
-        assert isinstance(trial,AbstractArchiveTrial), TypeError('The trial must an instance of AbstractArchiveTrial.')
+        if not isinstance(trial,AbstractArchiveTrial): raise TypeError('The trial must an instance of AbstractArchiveTrial.')
         self.__trial=trial
         self.__name=name
         self.__locked=False
@@ -24,7 +24,7 @@ class ArchiveTrialDescriptor(AbstractTrialDescriptor):
         :param owner - the owner of the object:
         :return tuple(trial value:str , state:bool):
         '''
-        assert (value:=getattr(self,f'_{self.__class__.__name__}__placeholder',None)) is not None, ValueError('Trial hasn\'t been set up.')
+        if not ((value:=getattr(self,f'_{self.__class__.__name__}__placeholder',None)) is not None): raise ValueError('Trial hasn\'t been set up.')
 
         getter=(instance,f'_{instance.__class__.__name__}__{self.__name}')
 
@@ -42,7 +42,7 @@ class ArchiveTrialDescriptor(AbstractTrialDescriptor):
         :param value:
         :return:
         '''
-        assert isinstance(value,str) , TypeError('Value parameter must be a string instance.')
+        if not isinstance(value,str) : raise TypeError('Value parameter must be a string instance.')
         if not self.__locked:
             self.__placeholder=value
         else:

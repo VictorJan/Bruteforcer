@@ -11,7 +11,7 @@ class EnumeratorTool(AbstractTool):
         :param hook:: MetaHook:
         :return:
         '''
-        assert obj.__class__.__class__ == MetaHook, TypeError(
+        if not(obj.__class__.__class__ == MetaHook): raise TypeError(
             'Object component - must be an instance of a class instantiated by a MetaHook.')
         result = await StringSupplier().supply(obj)
         return f'Password has {"not " if result[0] is None else ""} been found {" - {} .".format(result[0]) if result[0] is not None else "."}' \
