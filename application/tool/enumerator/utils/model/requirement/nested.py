@@ -45,5 +45,5 @@ class NestedRequirement(AbstractRequirement):
         :return bool:
         '''
         return self.__itype.validate(value) and \
-            not any(map(lambda req: not (req[1].validate(obj) if (obj:=value.get(req[0],False)) else obj), self.__requirements.items())) and \
+            not any(map(lambda req: not (req[1].validate(obj) if (obj:=value.get(req[0],False)) is not False else obj), self.__requirements.items())) and \
                len(value)==len(self.__requirements)

@@ -18,7 +18,7 @@ class StringNotificationPublisher(AbstractPublisher):
         '''
         if not isinstance(topic,str): raise TypeError('An topic name must be a string.')
         if not (self.broker is not None): raise NotImplementedError('A broker hasn\'t been assinged : raise consequently one shall not be able to publish a notification.')
-        asyncio.create_task(self.broker._distribute(topic=topic,index=0,**data))
+        asyncio.create_task(self.broker.push(topic=topic,**data))
 
     @property
     def broker(self):

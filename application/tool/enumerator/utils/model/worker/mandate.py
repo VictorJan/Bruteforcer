@@ -1,8 +1,12 @@
 import types
 
-from application.tool.enumerator.utils.model.worker import AbstractWorker
 from application.tool.enumerator.utils.model.worker.dispatcher import DispatcherWorker
 from application.tool.enumerator.utils.model.dispatcher import StringDispatcher
+
+from application.tool.enumerator.utils.model.config import Config
+from application.tool.enumerator.utils.model.requirement import NestedRequirement,TypeRequirement,IterableRequirement,MetaTypeRequirement
+from application.tool.enumerator.utils.model.worker import AbstractWorker
+
 
 from application.utils.model.hook import MetaHook
 
@@ -10,63 +14,78 @@ class MandateWorker(AbstractWorker):
 
     def __init__(self,config):
         '''
-        Initializes a mandate worker with a respective configurations of:
-        - a common mutable workers-queue:[AbstractWorker]
-        - a hook for the dispatchers
-        - submitted data :
-          - requested payload
-          -
-        - a callback method
-        hook::MetaHook,
-        callback:method,
-        data :
-            {
-            payload:str,
-            running_length:int,
-            suspend_length:int
-            }
-        }
-        - common pointer to a list of workers
-        - requested length of a string product
-        - source of future string compounds
-        - amount of workers left to set up
-        - a hook for the dispatchers
-        :param config:
+        Initializes a mandate worker with a respective config which follows the following guideline:
+            - a common mutable workers-queue:[AbstractWorker]
+            - a hook for the dispatchers
+            - a callback method
+            - submitted data:
+                - a requested payload
+                - a running length
+                - a suspension length
+        :param config::AbstractConfig:
         '''
 
-        require_submission = ()
-        required_config = (('workers', list, AbstractWorker),
-                           ('hook', MetaHook),
-                           ('callback',types.MethodType),
-                           ('submission',dict,(
-                               ('payload',str),
-                               ('')
-                           ))
-                           )
+        if not isinstance(config.__class__,Config.__class__): raise TypeError(f'A config must be an instance of a class that implements AbstractConfig.')
 
-        if not(all(config.get(rc[0], None).__class__ is rc[1] for rc in required_config)): raise \
-            RuntimeError('Provided configuration is not supported, according to a guideline : {",".join(map(str, required_config))}')
-        if not(all(map(lambda worker: isinstance(worker, AbstractWorker), config['workers']))): raise\
-            TypeError('Workers must be be instances that derive from classes, which are implemented from the AbstractWorker class')
+        if not config.validate(
+            workers=IterableRequirement(list,AbstractWorker),
+            hook=MetaTypeRequirement(MetaHook),
+            callback=TypeRequirement(types.MethodType),
+            submission=NestedRequirement(
+                payload=TypeRequirement(str),
+                running_length=TypeRequirement(int),
+                suspension_length=TypeRequirement(int)
+            )
+        ): raise KeyError('A provided config is invalid.')
 
         self.__config=config
+        self.__next=None
 
-    async def __call__(self,config):
+    async def __call__(self):
         '''
-        An asynchronous execution of a mandate worker - proceeds to:
-        - set up DispatcherWorkers
-        :param config:[AbstractWorker,...]}:
+        An asynchronous execution of a mandate worker, based on the composing config,
+        proceeds to do the following:
+        -?- tries to:
+            - fetch a string-dispatcher instance from the distribution, based on
+            payload and length values from the config.
+            - appends a DispatcherWorker instance to the end of a worker-queue in the config,
+            having provided a separate config for the dispatcher-worker ,injecting:
+                - a hook;
+                - a callback;
+                - the dispatcher instance itself.
+            - prepends the same MandateWorker to the queue - which means that the current worker can
+        -?> Given that the instantiation of the distribution has raised the StopIteration error, alluding that:
+            - all string-dispatchers , based on the latter payload and running length, have been exhausted.
+        -?- at last, if the current worker hasn't already assigned the next MandateWorker
+         and the next running length is not about to suspend:
+            - set up the next MandateWorker, composing one with a separate config, which includes:
+                - the common worker-queue, the hook and the callback
+                - a submission hash-map, containing the next running length with the same payload and suspension.
+            - insert the latter MandateWorker to the common worker-queue.
         :return:
         '''
 
-        #assings dispatcher workers
-        self.__config['workers']+=[DispatcherWorker(hook=self.__config['config'],dispatcher=dispatcher) for dispatcher
-                                   in StringDispatcher(self.__config['payload'],self.__config['length'])]
-        #assing next mandate worker
-        if (amount:=self.__config.pop('amount')-1)>0:
-            self.__config['workers']+=[self.__class__(amount=amount,**config,length=self.__config['length']+1)]
+        try:
+            self.__config.workers.append(DispatcherWorker(Config(
+                hook=self.__config.hook,
+                callback=self.__config.callback,
+                dispatcher=StringDispatcher(self.__config.submission['payload'],self.__config.submission['running_length'])
+            )))
+            self.__config.workers.append(self)
+        except StopIteration:
+            pass
 
-
+        if self.__next is None and not (next_length:=self.__config.submission['running_length']+1)>self.__config.submission['suspension_length']:
+            self.__next = MandateWorker(Config(
+                **{
+                    **self.__config.to_dict(),
+                    'submission': {
+                        **self.__config.submission,
+                        'running_length': next_length
+                    }
+                }
+            ))
+            self.__config.workers.append(self.__next)
 
 
 

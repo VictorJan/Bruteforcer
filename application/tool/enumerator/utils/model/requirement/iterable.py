@@ -6,14 +6,20 @@ from application.tool.enumerator.utils.model.requirement import MetaTypeRequirem
 class IterableRequirement(AbstractRequirement):
     def __init__(self,itype,/,itemstype=None,itemsmeta=None):
         '''
-        Initializes an instance of IterableRequirement, by injecting an internal type and optional type of items.
+        Initializes an instance of IterableRequirement, by injecting an internal type and optional meta/type of items.
         :param itype:
         :param items:{'type':type,'meta':type}:
         '''
         if not(hasattr(itype,'__iter__')): raise TypeError('Internal type must be an iterable.')
         if not(isinstance(itype.__class__,type) or itemstype is None): raise TypeError('Internal type must be be derived from the type.')
+
         self.__itype = TypeRequirement(itype)
-        self.__items = next((case for case in ((itemstype,TypeRequirement),(itemsmeta,MetaTypeRequirement)) if case[0] is not None),(None,None))[1]
+
+        items_guidelines=((itemstype,TypeRequirement),(itemsmeta,MetaTypeRequirement))
+
+        self.__items = validator[1](validator[0]) \
+            if (validator:=next((case for case in items_guidelines if case[0] is not None),(None,None)))[1] \
+            else validator[1]
 
     def validate(self,value):
         '''

@@ -2,7 +2,7 @@ from application.utils.protocol.descriptor import AbstractDescriptor
 from application.tool.enumerator.utils.design.pubsub.broker import AbstractSingletonBroker
 from application.tool.enumerator.utils.design.pubsub.subscriber import AbstractSubscriber
 
-from functools import partial
+from functools import partial,wraps
 
 class delegate(AbstractDescriptor):
     '''

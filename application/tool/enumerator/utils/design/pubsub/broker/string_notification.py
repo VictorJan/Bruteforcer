@@ -1,6 +1,5 @@
 from application.tool.enumerator.utils.design.pubsub.subscriber import AbstractSubscriber
 from application.tool.enumerator.utils.design.pubsub.broker import AbstractSingletonBroker
-from copy import deepcopy
 import asyncio
 
 class StringNotificationBroker(metaclass=AbstractSingletonBroker):
@@ -37,7 +36,6 @@ class StringNotificationBroker(metaclass=AbstractSingletonBroker):
         self.__topics[topic]=self.__topics.get(topic,[])+[subscriber]
         self.__running_notification_indexes[topic]=self.__running_notification_indexes.get(topic,0)
 
-#    @delegator
     async def push(self,topic,**data):
         '''
         An asynchronous method which is delegated to push notifications to subscribers of a provided topic.
@@ -53,34 +51,16 @@ class StringNotificationBroker(metaclass=AbstractSingletonBroker):
         :return None:
         '''
         if not(isinstance(topic, str)): raise TypeError('Topic must be a string.')
-        assert all(topic in case for case in (self.__topics,self.__running_notification_indexes)), KeyError('Topic hasn\'t been registered.')
-        '''
-        asyncio.create_task(self._distribute(
-            topic=topic,
-            index=0,
-            **data
-        ))
-        '''
-        index = self.__running_notification_indexes[topic]
+        if not all(topic in case for case in (self.__topics,self.__running_notification_indexes)): raise KeyError('Topic hasn\'t been registered.')
 
-        if not index<len(self.__topics[topic]):
+
+        if not (index:=self.__running_notification_indexes[topic])<len(self.__topics[topic]):
             self.__running_notification_indexes[topic]=0
         else:
-
             self.__running_notification_indexes[topic]+=1
-
             asyncio.create_task(self.__topics[topic][index].receive(topic,**data))
+
             if index+1<len(self.__topics[topic]):
                 asyncio.create_task(self.push(topic,**data))
             else:
                 self.__running_notification_indexes[topic] = 0
-        #'''
-
-    async def _distribute(self,**payload):
-        required_payload = (('topic', str), ('index', int))
-        assert all(payload.get(rp[0], None).__class__ is rp[1] for rp in required_payload), \
-            RuntimeError(f'Provided configuration is not supported, according to a guideline : {",".join(map(str, required_payload))}')
-
-        if (index:=payload.pop('index'))<len((subscribers:=self.__topics[(topic:=payload.pop('topic'))])):
-            asyncio.create_task(subscribers[index].receive(topic,**payload))
-            if index+1<len(subscribers): asyncio.create_task(self._distribute(topic=topic,index=index+1,**payload))

@@ -3,7 +3,7 @@ from abc import ABC,abstractmethod
 class AbstractWorker(ABC):
 
     @abstractmethod
-    def __init__(self,**config):
+    def __init__(self,config):
         raise NotImplementedError()
 
     @abstractmethod
