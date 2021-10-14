@@ -1,4 +1,5 @@
 from application.utils.protocol.descriptor import AbstractDescriptor
+from application.utils.model.requirement import AbstractRequirement
 
 class ClassProperty(AbstractDescriptor):
     '''
@@ -41,10 +42,45 @@ class ClassProperty(AbstractDescriptor):
         return self.__class__(self.__fget,fset)
 
 
-
-class PrivateRetrieverProperty(AbstractDescriptor):
+class PrivateDataDescriptor(AbstractDescriptor):
     '''
-    A property used to retrieve private fields.
+    A data descriptor used to retrieve private fields and set values, having validated them with a respective requirement.
+    '''
+
+    def __init__(self,name,requirement):
+        '''
+        Initialize a name of a private attribute and compose oneself with a requirement.
+        :param fget:
+        :param fset:
+        '''
+        if not isinstance(name,str): raise TypeError('Name of a private attribute must be a string.')
+        if not isinstance(requirement,AbstractRequirement): raise TypeError('A PrivateDataDescriptor must be composed of a requirement instance.')
+        self.__name=name
+        self.__requirement=requirement
+
+    def __get__(self,instance,owner=None):
+        '''
+        Fetches value of the private attribute.
+        :param instance:
+        :param owner:
+        :return *:
+        '''
+        return getattr(instance,f'_{instance.__class__.__name__}__{self.__name}',None)
+
+    def __set__(self,instance,value):
+        '''
+        Sets a value of the private attribute, having verified according to the requirement.
+        :param instance:
+        :param value:
+        :return:
+        '''
+        if self.__requirement.validate(value):
+            setattr(instance,f'_{instance.__class__.__name__}__{self.__name}',value)
+
+
+class PrivateNonDataDescriptor(AbstractDescriptor):
+    '''
+    A descriptor used to retrieve private fields.
     '''
 
     def __init__(self,name):

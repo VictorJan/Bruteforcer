@@ -1,4 +1,4 @@
 from application.utils.protocol.descriptor.abstract import AbstractDescriptor,AbstractTrialDescriptor
 from application.utils.protocol.descriptor.archive import ArchiveTrialDescriptor
-from application.utils.protocol.descriptor.property import ClassProperty,PrivateRetrieverProperty
-from application.utils.protocol.descriptor.delegation import delegate
+from application.utils.protocol.descriptor.property import ClassProperty,PrivateNonDataDescriptor,PrivateDataDescriptor
+from application.utils.protocol.descriptor.asynchoronous import awaitable

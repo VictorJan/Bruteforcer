@@ -27,7 +27,7 @@ class StringSupply(AbstractSupply):
         try:
             hook.trial = self.__payload
             trial = await hook.trial
-            self.emitter.publish('password_feedback', callback=callback, password=self.__payload, state=trial[1])
+            self.emitter.publish('password_feedback', callback=callback, password=self.__payload, state=trial[1] if trial[0]==self.__payload else False)
         except BlockingIOError:
             return
 

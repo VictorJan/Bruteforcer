@@ -13,7 +13,7 @@ class AbstractMetaConfig(AbstractMeta):
         for __dict__ and __weakref__.
         :param args:
         :param kwargs:
-        :return ArchiveHook instance:
+        :return *Config instance:
         '''
 
         instance = super(AbstractMetaConfig,cls).__call__(*args,**kwargs)

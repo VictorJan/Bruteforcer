@@ -4,7 +4,7 @@ from application.tool.enumerator.utils.model.worker.dispatcher import Dispatcher
 from application.tool.enumerator.utils.model.dispatcher import StringDispatcher
 
 from application.tool.enumerator.utils.model.config import Config
-from application.tool.enumerator.utils.model.requirement import NestedRequirement,TypeRequirement,IterableRequirement,MetaTypeRequirement
+from application.utils.model.requirement import NestedRequirement,TypeRequirement,IterableRequirement,MetaTypeRequirement
 from application.tool.enumerator.utils.model.worker import AbstractWorker
 
 

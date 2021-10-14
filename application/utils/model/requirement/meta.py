@@ -1,4 +1,4 @@
-from application.tool.enumerator.utils.model.requirement import AbstractRequirement
+from application.utils.model.requirement import AbstractRequirement
 
 class MetaTypeRequirement(AbstractRequirement):
     def __init__(self,imtype):

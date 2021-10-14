@@ -1,4 +1,3 @@
-import threading
 import types
 
 from application.tool.enumerator.utils.model.supplier import AbstractSupplier
@@ -6,17 +5,14 @@ from application.tool.enumerator.utils.model.supplier import AbstractSupplier
 from application.tool.enumerator.utils.design.pubsub import StringNotificationSubscriber
 from application.tool.enumerator.utils.design.pubsub import StringNotificationBroker
 
-from application.tool.enumerator.utils.model.dispatcher import StringDispatcher
-
 from application.tool.enumerator.utils.model.config import Config
-from application.tool.enumerator.utils.model.requirement import NestedRequirement,TypeRequirement,IterableRequirement,MetaTypeRequirement
+from application.utils.model.requirement import NestedRequirement,TypeRequirement,IterableRequirement,MetaTypeRequirement
 from application.tool.enumerator.utils.model.worker import AbstractWorker,MandateWorker
 
 from application.utils.model.hook import MetaHook
 
 import asyncio
 
-from threading import Thread,active_count
 
 class StringSupplier(AbstractSupplier):
 
@@ -120,19 +116,6 @@ class StringSupplier(AbstractSupplier):
             asyncio.create_task(self._delegate(config))
 
 
-        '''
-        Config(
-                    workers=config.workers,
-                    hook=config.hook,
-                    callback=config.callback,
-                    submission=config.submission
-                )
-        if config['workers']:
-            worker=config['workers'].pop(0)()
-            asyncio.create_task(self._delegate(**config))
-            #set 
-        '''
-
     async def _callback(self, procurer, **data):
         '''
         An asynchronous callback - meant to be invoked by a subscriber complement, of which the current supplier is composed.
@@ -151,7 +134,6 @@ class StringSupplier(AbstractSupplier):
         if not all(data.get(rc[0], None).__class__ is rc[1] for rc in required_data):
             raise RuntimeError(f'Provided configuration is not supported, according to a guideline : {",".join(map(str, required_data))}')
 
-        #print('at callback:',data)
         if data['state']:
             self.__product.set_result(data['password'])
         elif len(asyncio.all_tasks())==1:

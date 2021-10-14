@@ -1,5 +1,5 @@
-from application.tool.enumerator.utils.model.requirement import AbstractRequirement
-from application.tool.enumerator.utils.model.requirement import TypeRequirement
+from application.utils.model.requirement import AbstractRequirement
+from application.utils.model.requirement import TypeRequirement
 
 
 class NestedRequirement(AbstractRequirement):

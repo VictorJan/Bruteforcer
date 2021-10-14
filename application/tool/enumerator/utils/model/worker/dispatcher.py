@@ -1,9 +1,9 @@
 import asyncio
 
 from application.tool.enumerator.utils.model.worker import AbstractWorker
-from application.tool.enumerator.utils.model.dispatcher import AbstractDispatcher
+from application.tool.enumerator.utils.model.dispatcher import AbstractMetaDispatcher
 
-from application.tool.enumerator.utils.model.requirement import TypeRequirement,MetaTypeRequirement
+from application.utils.model.requirement import TypeRequirement,MetaTypeRequirement
 from application.tool.enumerator.utils.model.config import Config
 from application.utils.model.hook import MetaHook
 import types
@@ -23,7 +23,7 @@ class DispatcherWorker(AbstractWorker):
             f'A config must be an instance of a class that implements AbstractConfig.')
 
         if not config.validate(
-                dispatcher=MetaTypeRequirement(AbstractDispatcher),
+                dispatcher=MetaTypeRequirement(AbstractMetaDispatcher),
                 hook=MetaTypeRequirement(MetaHook),
                 callback=TypeRequirement(types.MethodType),
         ): raise KeyError('A provided config is invalid.')
