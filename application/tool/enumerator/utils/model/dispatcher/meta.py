@@ -7,7 +7,6 @@ from abc import abstractmethod
 class AbstractMetaDispatcher(AbstractMeta):
 
     __internal={}
-    __distribution={}
 
     def __call__(cls, payload, length=1):
         '''
