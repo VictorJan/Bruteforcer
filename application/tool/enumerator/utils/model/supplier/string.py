@@ -47,6 +47,7 @@ class StringSupplier(AbstractSupplier):
         :return password:str/None, failure:int:
         '''
         if not hook.__class__.__class__ == MetaHook: raise TypeError('Hook component - must be an instance of a class instantiated by a MetaHook.')
+        numeral = '1234567890'
 
         self.listener.subscribe('password_feedback',StringNotificationBroker())
         starter_config=Config(
@@ -54,7 +55,7 @@ class StringSupplier(AbstractSupplier):
             hook=hook,
             callback=self._callback,
             submission=dict(
-                payload='aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ'[::2],
+                payload='aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ'+numeral,
                 running_length=3,
                 suspension_length=5
             )
@@ -80,20 +81,9 @@ class StringSupplier(AbstractSupplier):
         -Worker(...)()
         ...
 
-        or
-        1.MandateWorker($1)() ---> worker-queue:[3,4]
-        2._delegate(...)
-        3.DispatcherWorker(StringDispatcher)
-        4.MandateWorker($1)
-        4
-
         This would work,only if the Abstract Meta Dispatcher , keeps on providing different String Dispatchers,
         based on the same payload and length, until it exhausts itself based on the payload -> providing a None.
-
-
-
         :param config::AbstractConfig:
-        }
         :return:
         Note: each worker is responsible to assign other workers to the worker/job-queue.
         '''

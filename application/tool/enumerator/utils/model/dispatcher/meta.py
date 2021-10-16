@@ -176,7 +176,7 @@ class AbstractMetaDispatcher(AbstractMeta):
                     - set pusher index to a -1;
                     - set the reset value of the current ratcheting node to a 0.
                     - increment the ratchet index -> thus delegating ratcheting to the next node.
-                    -?- if the ratchet index is greater than the length of nodes:
+                    -?- if the ratchet index is greater than the length of nodes - 1:
                         - return None , inferring that the header has been fully worn out.
                     - Increment the reset value of a new ratcheting node.
 
@@ -203,7 +203,7 @@ class AbstractMetaDispatcher(AbstractMeta):
                 pusher_index = -1
                 header.nodes[header.ratchet].reset = 0
                 header.ratchet += 1
-                if header.ratchet>len(header.nodes):
+                if header.ratchet>len(header.nodes)-1:
                     return None
                 header.nodes[header.ratchet].reset += 1
 
@@ -214,15 +214,6 @@ class AbstractMetaDispatcher(AbstractMeta):
                     length=1
                 )
         return ''.join( (next(node.wheel) if index==header.ratchet else node.wheel.peek())[0] for index,node in enumerate(header.nodes))
-
-
-
-
-
-
-
-
-
 
 
     @abstractmethod
